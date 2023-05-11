@@ -64,16 +64,6 @@ class Settings(BaseSettings):
     REDIS_HOST: str
     REDIS_DB_BOT: str = "REDIS_DB_BOT"
 
-    @validator("USDT_ABI_CONTRACT")
-    def usdt_abi_contract_to_dict(
-            cls, v: Union[str, dict],
-            values: Dict[str, Any]
-    ) -> Any:
-        if isinstance(v, dict):
-            return v
-
-        return json.loads(v)
-
     class Config:
         case_sensitive = True
 
