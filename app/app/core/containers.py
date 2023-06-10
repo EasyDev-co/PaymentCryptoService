@@ -4,6 +4,32 @@ from dependency_injector.wiring import Provider
 from app.core.config import Settings
 from app.core.celery import celery_app
 
+from app.models.wallets import CryptocurrencyWallet, Wallet
+from app.models.webhook_erc20 import WebhookErc20Alchemy
+from app.models.settings import Settings
+from app.models.users import Users
+
+from app.repository.wallet import RepositoryWallet, RepositoryCryptoWallet
+from app.repository.transactions import RepositoryCryptoTransaction
+from app.repository.webhoook_erc20 import RepositoryWebhookErc20
+from app.repository.settings import RepositorySettings
+from app.repository.user import RepositoryUser
+
+from app.services.crypto.btc import BlockChairApi, BlockCypherApi, Bitcoin
+from app.services.crypto.erc20 import (
+    EtherscanAPI,
+    AlchemyNotify,
+    Erc20Token,
+    Erc20Network
+)
+from app.services.rate import CheckCurrentCryptoCost
+from app.services.crypto import CryptoService
+from app.services.transaction_service import CryptoTransactionService
+
+from app.workers.add_address_to_webhook import AddAddressToWebhookErc20
+from app.workers.check_transactions import CheckTransaction, SendTransaction
+from app.workers.check_bitcoin_wallets import CheckBitcoinWallet
+
 
 class CustomTaskProvider(providers.Provider):
 
@@ -42,6 +68,116 @@ class Container(containers.DeclarativeContainer):
 
     config = providers.Singleton(Settings)
     db = providers.Singleton(SyncSession, db_url=config.provided.SYNC_SQLALCHEMY_DATABASE_URI)
+
+    repository_user = providers.Singleton(RepositoryUser, model=Users, session=db)
+
+    repository_wallet = providers.Singleton(RepositoryWallet, model=Wallet, session=db)
+    repository_crypto_wallet = providers.Singleton(RepositoryCryptoWallet, model=CryptocurrencyWallet, session=db)
+    repository_crypto_transaction = providers.Singleton(
+        RepositoryCryptoTransaction,
+        model=CryptoTransaction,
+        session=db
+    )
+
+    repository_settings = providers.Singleton(
+        RepositorySettings,
+        model=ModelSettings,
+        session=db
+    )
+
+    repository_webhook_erc20 = providers.Singleton(RepositoryWebhookErc20, model=WebhookErc20Alchemy, session=db)
+
+    block_chair_api = providers.Factory(
+        BlockChairApi,
+        base_url=config.provided.BLOCKCHAIR_API_URL,
+        bitcoin_network=config.provided.BLOCK_CHAIR_NETWORK
+    )
+    block_cypher_api = providers.Factory(
+        BlockCypherApi,
+        base_url=config.provided.BLOCK_CYPHER_API_URL,
+        api_key=config.provided.BLOCK_CYPHER_API_TOKEN,
+        network=config.provided.BLOCK_CYPHER_API_URL_NETWORK
+    )
+    etherscan_api = providers.Factory(
+        EtherscanAPI,
+        base_url=config.provided.ETHERSCAN_API_URL,
+        api_key=config.provided.ETHERSCAN_API_TOKEN
+    )
+    alchemy_api = providers.Factory(
+        AlchemyNotify,
+        base_url=config.provided.WEBHOOK_ALCHEMY_URL,
+        api_key=config.provided.WEBHOOK_ALHECMY_TOKEN
+    )
+    bitcoin_service = providers.Singleton(Bitcoin, block_cypher_api=block_cypher_api, block_chair_api=block_chair_api)
+    ethereum_service = providers.Singleton(
+        Ethereum, etherscan_api=etherscan_api,
+        alchemy=alchemy_api,
+        ethereum_network_url=config.provided.ALCHEMY_API_URL
+    )
+    usdt_service = providers.Singleton(
+        Erc20Token,
+        contract_address=config.provided.USDT_ERC20_ADDRESS_CONTRACT,
+        erc20_abi=config.provided.USDT_ERC20_ABI_CONTRACT, decimals=6,
+        etherscan_api=etherscan_api,
+        alchemy=alchemy_api,
+        ethereum_network_url=config.provided.ALCHEMY_API_URL
+    )
+
+    erc20_network = providers.Singleton(Erc20Network, ethereum_service=ethereum_service, usdt_service=usdt_service)
+    crypto_service = providers.Singleton(CryptoService, erc20_network=erc20_network, bitcoin_network=bitcoin_service)
+
+    crypto_transaction_service = providers.Singleton(
+        CryptoTransactionService,
+        repository_user=repository_user,
+        repository_crypto_wallet=repository_crypto_wallet,
+        repository_crypto_transactions=repository_crypto_transaction
+    )
+
+    check_balance_bitcoin_task = CustomTaskProvider(
+        CheckBitcoinWallet,
+        session=db,
+        bitcoin_service=bitcoin_service,
+        repository_wallet=repository_wallet,
+        repository_cryptocurrency_wallet=repository_crypto_wallet,
+        repository_crypto_transaction=repository_crypto_transaction,
+        repository_settings=repository_settings
+    )
+
+    send_transaction_task = CustomTaskProvider(
+        SendTransaction,
+        session=db,
+        crypto_service=crypto_service,
+        repository_crypto_transaction=repository_crypto_transaction,
+        settings_repository=repository_settings,
+        repository_crypto_wallet=repository_crypto_wallet
+    )
+    check_transaction_task = CustomTaskProvider(
+        CheckTransaction,
+        session=db,
+        repository_crypto_transaction=repository_crypto_transaction,
+        repository_cryptocurrency_wallet=repository_crypto_wallet,
+        settings_repository=repository_settings,
+        rate_service=rate_service,
+        repository_telegram_user=repository_user,
+        crypto_service=crypto_service
+    )
+
+    add_address_to_webhook_erc20_task = CustomTaskProvider(
+        AddAddressToWebhookErc20,
+        repository_webhook_erc20=repository_webhook_erc20,
+        alchemy_api=alchemy_api,
+        session=db
+    )
+
+    wallet_service = providers.Singleton(
+        WalletService,
+        repository_cryptocurrency_wallet=repository_crypto_wallet,
+        repository_wallet=repository_wallet,
+        repository_settings=repository_settings,
+        crypto_service=crypto_service,
+        repository_crypto_transaction=repository_crypto_transaction,
+        add_address_to_webhook_erc20_task=add_address_to_webhook_erc20_task
+    )
 
 
 @containers.copy(Container)

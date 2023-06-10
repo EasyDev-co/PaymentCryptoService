@@ -200,6 +200,24 @@ test = ["contextlib2", "coverage[toml] (>=4.5)", "hypothesis (>=4.0)", "mock (>=
 trio = ["trio (>=0.16,<0.22)"]
 
 [[package]]
+name = "asgiref"
+version = "3.7.2"
+description = "ASGI specs, helper code, and adapters"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "asgiref-3.7.2-py3-none-any.whl", hash = "sha256:89b2ef2247e3b562a16eef663bc0e2e703ec6468e2fa8a5cd61cd449786d4f6e"},
+    {file = "asgiref-3.7.2.tar.gz", hash = "sha256:9e0ce3aa93a819ba5b45120216b23878cf6e8525eb3848653452b4192b92afed"},
+]
+
+[package.dependencies]
+typing-extensions = {version = ">=4", markers = "python_version < \"3.11\""}
+
+[package.extras]
+tests = ["mypy (>=0.800)", "pytest", "pytest-asyncio"]
+
+[[package]]
 name = "asn1crypto"
 version = "1.5.1"
 description = "Fast ASN.1 parser and serializer with definitions for private keys, public keys, certificates, CRL, OCSP, CMS, PKCS#3, PKCS#7, PKCS#8, PKCS#12, PKCS#5, X.509 and TSP"
@@ -364,6 +382,17 @@ files = [
     {file = "bitarray-2.7.3-cp39-cp39-win32.whl", hash = "sha256:4b84230624d15868e407ba8b66df54fc69ee6a9e9cb6d51eb264b8f2614596f1"},
     {file = "bitarray-2.7.3-cp39-cp39-win_amd64.whl", hash = "sha256:757a08bf0aed5a650a399f8c66bcba00c210bce34408b6d7b09b4837bee8f4da"},
     {file = "bitarray-2.7.3.tar.gz", hash = "sha256:f71256a32609b036adad932e1228b66a6b4e2cae6be397e588ddc0babd9a78b9"},
+]
+
+[[package]]
+name = "bitcoin"
+version = "1.1.42"
+description = "Python Bitcoin Tools"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "bitcoin-1.1.42.tar.gz", hash = "sha256:11ba70bd9e1c764f6bb2c4bd4c7fbebd5c9053c73f4d4325b00a98869a8b7236"},
 ]
 
 [[package]]
@@ -2810,4 +2839,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "2634085f56f9496a0a147252b17d5f78d8d9a73cccccc629336367ca954ea54e"
+content-hash = "14a61d83e2f90b2d8105f896e1316af5883d226fac7eb4f12bdc41b5eb5d747d"
