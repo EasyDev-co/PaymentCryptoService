@@ -108,11 +108,15 @@ class SendTransaction(Base):
 
 class CheckTransaction(Base):
 
-    def __init__(self, repository_crypto_transaction: RepositoryCryptoTransaction,
-                 repository_cryptocurrency_wallet: RepositoryCryptoWallet,
-                 crypto_service: CryptoService, settings_repository: RepositorySettings,
-                 rate_service: CheckCurrentCryptoCost,
-                 repository_user: RepositoryUser, *args, **kwargs):
+    def __init__(
+            self,
+            repository_crypto_transaction: RepositoryCryptoTransaction,
+            repository_cryptocurrency_wallet: RepositoryCryptoWallet,
+            crypto_service: CryptoService,
+            settings_repository: RepositorySettings,
+            rate_service: CheckCurrentCryptoCost,
+            repository_user: RepositoryUser, *args, **kwargs
+    ):
         self._repository_crypto_transaction = repository_crypto_transaction
         self._rep_cryptocurrency_wallet = repository_cryptocurrency_wallet
         self._settings_repository = settings_repository

@@ -14,7 +14,7 @@ FROM base as dev
 
 COPY ./app/app/admin/pyproject.toml ./app/app/admin/poetry.lock* /app/app/admin/
 
-RUN poetry install --no-root
+RUN poetry install --no-root --no-dev
 ENV C_FORCE_ROOT=1
 
 COPY ./app/app/admin /app/app/admin

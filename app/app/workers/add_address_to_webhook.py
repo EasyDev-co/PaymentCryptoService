@@ -1,7 +1,7 @@
 from .base import Base
 
 from app.services.crypto.erc20 import AlchemyNotify
-from app.repository.webhook_erc20 import RepositoryWebhookErc20
+from app.repository.webhoook_erc20 import RepositoryWebhookErc20
 from app.core.config import settings
 from urllib.parse import urljoin
 

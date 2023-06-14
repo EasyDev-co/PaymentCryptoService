@@ -1,13 +1,13 @@
 from dependency_injector import containers, providers
-from dependency_injector.wiring import Provider
-
+from app.db.session import SyncSession
 from app.core.config import Settings
 from app.core.celery import celery_app
 
 from app.models.wallets import CryptocurrencyWallet, Wallet
 from app.models.webhook_erc20 import WebhookErc20Alchemy
-from app.models.settings import Settings
+from app.models.settings import Settings as ModelSettings
 from app.models.users import Users
+from app.models.transactions import CryptoTransaction
 
 from app.repository.wallet import RepositoryWallet, RepositoryCryptoWallet
 from app.repository.transactions import RepositoryCryptoTransaction
@@ -20,11 +20,14 @@ from app.services.crypto.erc20 import (
     EtherscanAPI,
     AlchemyNotify,
     Erc20Token,
-    Erc20Network
+    Erc20Network,
+    Ethereum
 )
+
 from app.services.rate import CheckCurrentCryptoCost
 from app.services.crypto import CryptoService
 from app.services.transaction_service import CryptoTransactionService
+from app.services.wallet import WalletService
 
 from app.workers.add_address_to_webhook import AddAddressToWebhookErc20
 from app.workers.check_transactions import CheckTransaction, SendTransaction
@@ -106,7 +109,7 @@ class Container(containers.DeclarativeContainer):
     alchemy_api = providers.Factory(
         AlchemyNotify,
         base_url=config.provided.WEBHOOK_ALCHEMY_URL,
-        api_key=config.provided.WEBHOOK_ALHECMY_TOKEN
+        api_key=config.provided.WEBHOOK_ALCHEMY_TOKEN
     )
     bitcoin_service = providers.Singleton(Bitcoin, block_cypher_api=block_cypher_api, block_chair_api=block_chair_api)
     ethereum_service = providers.Singleton(
@@ -117,7 +120,8 @@ class Container(containers.DeclarativeContainer):
     usdt_service = providers.Singleton(
         Erc20Token,
         contract_address=config.provided.USDT_ERC20_ADDRESS_CONTRACT,
-        erc20_abi=config.provided.USDT_ERC20_ABI_CONTRACT, decimals=6,
+        erc20_abi=config.provided.USDT_ERC20_ABI_CONTRACT,
+        decimals=6,
         etherscan_api=etherscan_api,
         alchemy=alchemy_api,
         ethereum_network_url=config.provided.ALCHEMY_API_URL
@@ -125,6 +129,11 @@ class Container(containers.DeclarativeContainer):
 
     erc20_network = providers.Singleton(Erc20Network, ethereum_service=ethereum_service, usdt_service=usdt_service)
     crypto_service = providers.Singleton(CryptoService, erc20_network=erc20_network, bitcoin_network=bitcoin_service)
+
+    rate_service = providers.Singleton(
+        CheckCurrentCryptoCost,
+        base_url=config.provided.CHECK_RATES_URL_TOKENS,
+    )
 
     crypto_transaction_service = providers.Singleton(
         CryptoTransactionService,
@@ -158,8 +167,8 @@ class Container(containers.DeclarativeContainer):
         repository_cryptocurrency_wallet=repository_crypto_wallet,
         settings_repository=repository_settings,
         rate_service=rate_service,
-        repository_telegram_user=repository_user,
-        crypto_service=crypto_service
+        crypto_service=crypto_service,
+        repository_user=repository_user
     )
 
     add_address_to_webhook_erc20_task = CustomTaskProvider(

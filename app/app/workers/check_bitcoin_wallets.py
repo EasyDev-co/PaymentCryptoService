@@ -7,7 +7,7 @@ from app.repository.transactions import RepositoryCryptoTransaction
 from app.repository.settings import RepositorySettings
 
 from app.models.wallets import NetworkType
-from app.models.transaction import CryptoTransaction
+from app.models.transactions import CryptoTransaction
 from app.models.settings import TaskType
 
 from app.core.config import settings

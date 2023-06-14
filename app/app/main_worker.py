@@ -4,7 +4,7 @@ from app import workers
 from celery.signals import task_failure
 
 from app.core.celery import celery_app
-from app.core.config import settings, EnvEnum
+from app.core.config import settings
 
 
 container = CeleryContainer()

@@ -56,8 +56,6 @@ services:
     build:
       context: .
       dockerfile: backend.dockerfile
-    env_file:
-      - .env
     expose:
       - 80
     restart: on-failure
@@ -68,8 +66,6 @@ services:
     build:
       context: .
       dockerfile: admin.dockerfile
-    env_file:
-      - .env
     expose:
       - 80
     restart: on-failure
@@ -79,7 +75,7 @@ services:
     expose:
       - 80
     ports:
-      - 8081:80
+      - 80:80
     networks:
       - internal
 

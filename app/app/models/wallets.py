@@ -1,7 +1,7 @@
 from uuid import uuid4
 import enum
 
-
+from app.models.types.decimals_int import NumericInt
 from app.db.base_class import Base
 
 from sqlalchemy import Column, Enum, ForeignKey, BigInteger, String

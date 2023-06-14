@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "admin"
+version = "0.1.0"
+description = ""
+authors = ["Axel791 <HS.Kazakov@mail.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+requests = "^2.31.0"
+flask-admin = "^1.6.1"
+flask-security = "^3.0.0"
+flask = "^2.3.2"
+psycopg2-binary = "^2.9.6"
+sqlalchemy = "^2.0.16"
+python-jose = "^3.3.0"
+uvicorn = "^0.22.0"
+gunicorn = "^20.1.0"
+httpx = "^0.24.1"
+loguru = "^0.7.0"
+pydantic = "^1.10.9"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

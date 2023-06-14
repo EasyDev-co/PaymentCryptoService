@@ -3,6 +3,8 @@ import enum
 
 from uuid import uuid4
 
+from app.models.types.decimals_int import NumericInt
+
 from app.db.base_class import Base
 from app.models.wallets import NetworkType, CryptocurrencyType
 from app.core.config import settings
