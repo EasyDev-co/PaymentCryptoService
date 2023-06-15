@@ -85,8 +85,6 @@ class SendTransaction(Base):
                 )
                 if transaction.type in [CryptoTransaction.TransactionType.in_wallet,
                                         CryptoTransaction.TransactionType.out_system]:
-                    await bot.send_message(transaction.wallet_crypto.user.user_id,
-                                           f"Транзакция {transaction.id} ошибочна.")
                     if transaction.type == CryptoTransaction.TransactionType.out_system:
                         self._repository_crypto_wallet.update(
                             db_obj=transaction.wallet_crypto,

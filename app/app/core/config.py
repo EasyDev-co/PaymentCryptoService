@@ -9,6 +9,8 @@ from loguru import logger
 
 
 class Settings(BaseSettings):
+    SECRET_KEY: str
+
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str
 

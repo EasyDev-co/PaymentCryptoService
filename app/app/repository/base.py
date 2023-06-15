@@ -17,8 +17,8 @@ class RepositoryBase(Generic[ModelType, ]):
         db_obj = self._model(**obj_in_data)
         self._session.add(db_obj)
         self._session.flush()
-        if commit:
-            self._session.commit()
+        # if commit:
+        #     self._session.commit()
         return db_obj
 
     def get(self, *args, **kwargs,) -> Optional[ModelType]:

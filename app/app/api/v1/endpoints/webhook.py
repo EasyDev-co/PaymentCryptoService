@@ -38,8 +38,8 @@ async def balance_erc20(
         if rep_crypto_transaction.get(transaction_id=update_balance.hash):
             continue
 
-        if update_balance.contract.address and ethereum.network.toChecksumAddress(update_balance.contract.address) == \
-                ethereum.network.toChecksumAddress(settings.USDT_ERC20_ADDRESS_CONTRACT):
+        if update_balance.contract.address and ethereum.network.to_checksum_address(update_balance.contract.address) == \
+                ethereum.network.to_checksum_address(settings.USDT_ERC20_ADDRESS_CONTRACT):
             update_balance.value = usdt.from_minimal_part(update_balance.contract.value)
 
             if update_balance.value < db_settings.minimum_usdt_in:
@@ -47,7 +47,7 @@ async def balance_erc20(
 
             value = usdt.to_minimal_part(update_balance.value)
 
-            wallet = rep_wallet.get(address=ethereum.network.toChecksumAddress(update_balance.destination_address))
+            wallet = rep_wallet.get(address=ethereum.network.to_checksum_address(update_balance.destination_address))
             if wallet:
                 wallet_crypto = rep_crypto_wallet.get(wallet_id=wallet.id, cryptocurrency=CryptocurrencyType.usdt)
                 erc20_gas_estimate = db_settings.erc20_gas_estimate or settings.ERC20_GAS_ESTIMATE
@@ -90,7 +90,7 @@ async def balance_erc20(
             if update_balance.value < db_settings.minimum_ethereum_in:
                 return
             value = ethereum.to_minimal_part(update_balance.value)
-            wallet = rep_wallet.get(address=ethereum.network.toChecksumAddress(update_balance.destination_address))
+            wallet = rep_wallet.get(address=ethereum.network.to_checksum_address(update_balance.destination_address))
             if wallet:
                 wallet_crypto = rep_crypto_wallet.get(wallet_id=wallet.id, cryptocurrency=CryptocurrencyType.ethereum)
 

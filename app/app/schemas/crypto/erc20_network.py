@@ -29,7 +29,7 @@ class GasPrice(BaseModel):
 
 class AlchemyNotifySchemeRawСontract(BaseModel):
     value: Union[str, int] = Field(..., alias="rawValue")
-    address: str =  None
+    address: str = None
 
     @validator("value")
     def validate_value(cls, v, **kwargs):

@@ -15,12 +15,12 @@ class CryptoTransactionService:
         self._repository_crypto_wallet = repository_crypto_wallet
         self._repository_crypto_transactions = repository_crypto_transactions
 
-    async def list(self, user_id: int):
+    async def list(self, user_id: str):
         user = self._repository_user.get(user_id=user_id)
         btc_wallet, eth_wallet, usdt_wallet = self._repository_crypto_wallet.list(user_id=user.id)
         return self._repository_crypto_transactions.transaction_history(wallet_crypto_id=btc_wallet.id) + \
             self._repository_crypto_transactions.transaction_history(wallet_crypto_id=eth_wallet.id) + \
             self._repository_crypto_transactions.transaction_history(wallet_crypto_id=usdt_wallet.id)
 
-    async def get(self, transaction_id: int):
+    async def get(self, transaction_id: str):
         return self._repository_crypto_transactions.get(id=transaction_id)

@@ -1,8 +1,18 @@
-from app.api import deps
 from fastapi import FastAPI, Response
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.api import deps
+from app.api.v1 import api
+
+from app.api.v1.endpoints import (
+    webhook,
+    users,
+    wallets,
+    transactions
+)
+
 from app.core.config import settings
 from app.core.containers import Container
-from fastapi.middleware.cors import CORSMiddleware
 from app.exceptions.base import (
     BaseNotFound,
     YouHaveNoRights
@@ -11,9 +21,13 @@ from app.exceptions.base import (
 
 def create_app():
     container = Container()
-    container.wire(modules=[deps])
+    container.wire(
+        modules=[deps, api, users,
+                 wallets, transactions, webhook]
+    )
     fastapi_app = FastAPI(
-        title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json"
+        title=settings.PROJECT_NAME,
+        openapi_url=f"{settings.API_V1_STR}/openapi.json"
     )
     fastapi_app.add_middleware(
         CORSMiddleware,
@@ -24,7 +38,7 @@ def create_app():
     )
     fastapi_app.container = container
 
-    # fastapi_app.include_router(api.api_router, prefix=settings.API_V1_STR)
+    fastapi_app.include_router(api.api_router, prefix=settings.API_V1_STR)
     return fastapi_app
 
 
