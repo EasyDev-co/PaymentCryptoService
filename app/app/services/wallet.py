@@ -1,3 +1,5 @@
+from loguru import logger
+
 from typing import Callable
 from uuid import UUID
 from typing import Optional
@@ -6,6 +8,7 @@ from typing import Optional
 from app.repository.transactions import RepositoryCryptoTransaction
 from app.repository.settings import RepositorySettings
 from app.repository.wallet import RepositoryWallet, RepositoryCryptoWallet
+from app.repository.user import RepositoryUser
 
 from app.workers.add_address_to_webhook import AddAddressToWebhookErc20
 
@@ -27,7 +30,8 @@ class WalletService:
             repository_crypto_transaction: RepositoryCryptoTransaction,
             add_address_to_webhook_erc20_task: AddAddressToWebhookErc20,
             crypto_service: CryptoService,
-            repository_settings: RepositorySettings
+            repository_settings: RepositorySettings,
+            repository_user: RepositoryUser
     ) -> None:
         self._repository_wallet = repository_wallet
         self._repository_cryptocurrency_wallet = repository_cryptocurrency_wallet
@@ -35,6 +39,7 @@ class WalletService:
         self._repository_crypto_transaction = repository_crypto_transaction
         self._add_address_to_webhook_erc20_task = add_address_to_webhook_erc20_task
         self._repository_settings = repository_settings
+        self._repository_user = repository_user
 
     async def _get_or_create_wallet_network(
             self,
@@ -102,10 +107,13 @@ class WalletService:
             )
 
     async def get_wallets(self, user_id: str):
-        return self._repository_cryptocurrency_wallet.list(user_id=user_id)
+        user = self._repository_user.get(user_id=user_id)
+        logger.info(f"{user.id}")
+        return self._repository_cryptocurrency_wallet.list(user_id=user.id)
 
     async def get_wallet(self, user_id: str, wallet_id: str):
-        wallet = self._repository_cryptocurrency_wallet.get(user_id=user_id, id=wallet_id)
+        user = self._repository_user.get(user_id=user_id)
+        wallet = self._repository_cryptocurrency_wallet.get(user_id=user.id, id=wallet_id)
         crypto_transactions_and_deals = [
             {
                 "id": transaction.id,
@@ -120,7 +128,7 @@ class WalletService:
                     wallet.wallet.network,
                     wallet.cryptocurrency
                 ).from_minimal_part(transaction.comission) if transaction.comission else None
-            } for transaction in self._repository_crypto_transaction.get_transaction_for_wallet(wallet_id=wallet.id)
+            } for transaction in self._repository_crypto_transaction.transaction_history(wallet_crypto_id=wallet.id)
         ]
 
         return {

@@ -185,7 +185,8 @@ class Container(containers.DeclarativeContainer):
         repository_settings=repository_settings,
         crypto_service=crypto_service,
         repository_crypto_transaction=repository_crypto_transaction,
-        add_address_to_webhook_erc20_task=add_address_to_webhook_erc20_task
+        add_address_to_webhook_erc20_task=add_address_to_webhook_erc20_task,
+        repository_user=repository_user
     )
 
 

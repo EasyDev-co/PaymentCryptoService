@@ -14,4 +14,7 @@ container.init_resources()
 
 config = container.config.provided()
 
+celery_app.add_periodic_task(30, container.check_balance_bitcoin_task.provided())
+celery_app.add_periodic_task(30, container.send_transaction_task.provided())
+celery_app.add_periodic_task(30, container.check_transaction_task.provided())
 
