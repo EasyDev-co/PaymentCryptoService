@@ -3,6 +3,8 @@ from app.models.wallets import Wallet, CryptocurrencyWallet
 from typing import Optional
 from sqlalchemy.orm import joinedload
 
+from loguru import logger
+
 
 class RepositoryWallet(RepositoryBase[Wallet]):
 
@@ -24,9 +26,11 @@ class RepositoryCryptoWallet(RepositoryBase[CryptocurrencyWallet]):
         ).filter(*args).filter_by(**kwargs).first()
 
     def list(self, *args, **kwargs) -> Optional[list[CryptocurrencyWallet]]:
-        return self._session.query(self._model).options(
+        wallets = self._session.query(self._model).options(
             joinedload(self._model.wallet)
         ).filter(*args).filter_by(**kwargs).all()
+        logger.info(f"WALLETS: {wallets}")
+        return wallets
 
     def get_wallet_on_address(self, address, cryptocurrency):
         return self._session.query(self._model).options(

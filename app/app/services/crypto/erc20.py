@@ -36,7 +36,6 @@ class EtherscanAPI:
 
         if response.status_code == 200:
             if response.json().get("result").get("SafeGasPrice"):
-                # TODO get only safe_gas_price
                 safe_gas_price, _, _ = (
                     int(response.json().get("result").get("SafeGasPrice")) / 1_000_000_000,
                     None,

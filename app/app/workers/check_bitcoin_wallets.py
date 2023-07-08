@@ -15,10 +15,15 @@ from app.core.config import settings
 
 class CheckBitcoinWallet(Base):
 
-    def __init__(self, bitcoin_service: Bitcoin, repository_wallet: RepositoryWallet,
-                 repository_crypto_transaction: RepositoryCryptoTransaction,
-                 repository_cryptocurrency_wallet: RepositoryCryptoWallet,
-                 repository_settings: RepositorySettings, *args, **kwargs):
+    def __init__(
+            self,
+            bitcoin_service: Bitcoin,
+            repository_wallet: RepositoryWallet,
+            repository_crypto_transaction: RepositoryCryptoTransaction,
+            repository_cryptocurrency_wallet: RepositoryCryptoWallet,
+            repository_settings: RepositorySettings,
+            *args, **kwargs
+    ) -> None:
         self._bitcoin_service = bitcoin_service
         self._rep_wallet = repository_wallet
         self._rep_cryptocurrency_wallet = repository_cryptocurrency_wallet

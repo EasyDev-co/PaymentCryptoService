@@ -55,6 +55,8 @@ class CryptoTransaction(Base):
                 return settings.ERC20_PRIVATE_KEY
             elif self.network == NetworkType.bitcoin_network:
                 return settings.BITCOIN_PRIVATE_KEY
+            elif self.network == NetworkType.trc20:
+                return settings.TRC20_PRIVATE_KEY
         elif self.type == self.TransactionType.in_system:
             return self.wallet_crypto.wallet.private_key
 
@@ -65,6 +67,8 @@ class CryptoTransaction(Base):
                 return settings.ERC20_PUBLIC_KEY
             elif self.network == NetworkType.bitcoin_network:
                 return settings.BITCOIN_PUBLIC_KEY
+            elif self.network == NetworkType.trc20:
+                return settings.TRC20_PUBLIC_KEY
         elif self.type == self.TransactionType.in_system:
             return self.wallet_crypto.wallet.public_key
 
@@ -75,6 +79,8 @@ class CryptoTransaction(Base):
                 return settings.ERC20_ADDRESS
             elif self.network == NetworkType.bitcoin_network:
                 return settings.BITCOIN_ADDRESS
+            elif self.network == NetworkType.trc20:
+                return settings.TRC20_ADDRESS
         elif self.type == self.TransactionType.in_system:
             return self.wallet_crypto.wallet.address
 

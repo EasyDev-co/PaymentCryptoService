@@ -10,6 +10,8 @@ from app.schemas.wallets import WalletCryptocurrencyOut, WalletGetData
 
 from app.services.wallet import WalletService
 
+from loguru import logger
+
 router = APIRouter()
 
 

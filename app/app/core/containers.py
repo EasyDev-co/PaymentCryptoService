@@ -23,6 +23,7 @@ from app.services.crypto.erc20 import (
     Erc20Network,
     Ethereum
 )
+from app.services.crypto.trc20 import TRXService, USDTTrc20Service, TRC20Network
 
 from app.services.rate import CheckCurrentCryptoCost
 from app.services.crypto import CryptoService
@@ -32,6 +33,7 @@ from app.services.wallet import WalletService
 from app.workers.add_address_to_webhook import AddAddressToWebhookErc20
 from app.workers.check_transactions import CheckTransaction, SendTransaction
 from app.workers.check_bitcoin_wallets import CheckBitcoinWallet
+from app.workers.check_trc20_wallets import CheckTRC20Wallets
 
 
 class CustomTaskProvider(providers.Provider):
@@ -90,6 +92,13 @@ class Container(containers.DeclarativeContainer):
 
     repository_webhook_erc20 = providers.Singleton(RepositoryWebhookErc20, model=WebhookErc20Alchemy, session=db)
 
+    trx_service = providers.Factory(TRXService, tronscan_url=config.provided.TRONSCAN_URL)
+    usdt_trc20_service = providers.Factory(
+        USDTTrc20Service,
+        usdt_trc20_contract_address=config.provided.USDT_TRC20_CONTRACT_ADDRESS,
+        tronscan_url=config.provided.TRONSCAN_URL
+    )
+
     block_chair_api = providers.Factory(
         BlockChairApi,
         base_url=config.provided.BLOCKCHAIR_API_URL,
@@ -127,8 +136,14 @@ class Container(containers.DeclarativeContainer):
         ethereum_network_url=config.provided.ALCHEMY_API_URL
     )
 
+    trc20_network = providers.Singleton(TRC20Network, trx_service=trx_service, usdt_trc20_service=usdt_trc20_service)
     erc20_network = providers.Singleton(Erc20Network, ethereum_service=ethereum_service, usdt_service=usdt_service)
-    crypto_service = providers.Singleton(CryptoService, erc20_network=erc20_network, bitcoin_network=bitcoin_service)
+    crypto_service = providers.Singleton(
+        CryptoService,
+        erc20_network=erc20_network,
+        trc20_network=trc20_network,
+        bitcoin_network=bitcoin_service,
+    )
 
     rate_service = providers.Singleton(
         CheckCurrentCryptoCost,
@@ -146,6 +161,16 @@ class Container(containers.DeclarativeContainer):
         CheckBitcoinWallet,
         session=db,
         bitcoin_service=bitcoin_service,
+        repository_wallet=repository_wallet,
+        repository_cryptocurrency_wallet=repository_crypto_wallet,
+        repository_crypto_transaction=repository_crypto_transaction,
+        repository_settings=repository_settings
+    )
+
+    check_trc20_wallets_task = CustomTaskProvider(
+        CheckTRC20Wallets,
+        session=db,
+        usdt_trc20_service=usdt_trc20_service,
         repository_wallet=repository_wallet,
         repository_cryptocurrency_wallet=repository_crypto_wallet,
         repository_crypto_transaction=repository_crypto_transaction,

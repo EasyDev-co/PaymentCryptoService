@@ -1,17 +1,16 @@
 """inital
 
-Revision ID: 457ef31be081
+Revision ID: a3382965340a
 Revises: 
-Create Date: 2023-06-15 19:08:24.009239
+Create Date: 2023-07-08 15:01:40.225189
 
 """
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
-
 # revision identifiers, used by Alembic.
-revision = '457ef31be081'
+revision = 'a3382965340a'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -24,16 +23,21 @@ def upgrade() -> None:
     sa.Column('minimum_ethereum_in', sa.Float(), nullable=True),
     sa.Column('minimum_usdt_in', sa.Float(), nullable=True),
     sa.Column('minimum_bitcoin_in', sa.Float(), nullable=True),
+    sa.Column('minimum_usdt_trc_in', sa.Float(), nullable=True),
     sa.Column('usdt_comission_out_count', sa.Float(), nullable=True),
     sa.Column('eth_comission_out_count', sa.Float(), nullable=True),
     sa.Column('btc_comission_out_count', sa.Float(), nullable=True),
+    sa.Column('usdt_trc_comission_out_count', sa.Float(), nullable=True),
     sa.Column('usdt_comission_out_percent', sa.Integer(), nullable=True),
     sa.Column('eth_comission_out_percent', sa.Integer(), nullable=True),
     sa.Column('btc_comission_out_percent', sa.Integer(), nullable=True),
+    sa.Column('usdt_trc_comission_out_percent', sa.Integer(), nullable=True),
     sa.Column('erc20_gas_estimate', sa.Integer(), nullable=True),
+    sa.Column('usdt_trc_fee_limit', sa.Integer(), nullable=True),
     sa.Column('transaction_active', sa.Enum('not_working', 'pending', 'stoping', name='tasktype'), nullable=True),
     sa.Column('transaction_check_active', sa.Enum('not_working', 'pending', 'stoping', name='tasktype'), nullable=True),
     sa.Column('transaction_bitcoin_wallet_check', sa.Enum('not_working', 'pending', 'stoping', name='tasktype'), nullable=True),
+    sa.Column('transaction_trc20_check', sa.Enum('not_working', 'pending', 'stoping', name='tasktype'), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('users',
@@ -52,7 +56,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_webhookerc20alchemies_webhook_id'), 'webhookerc20alchemies', ['webhook_id'], unique=False)
     op.create_table('wallets',
     sa.Column('id', sa.UUID(), nullable=False),
-    sa.Column('network', sa.Enum('bitcoin_network', 'erc20', name='networktype'), nullable=True),
+    sa.Column('network', sa.Enum('bitcoin_network', 'erc20', 'trc20', name='networktype'), nullable=True),
     sa.Column('address', sa.String(), nullable=True),
     sa.Column('public_key', sa.String(), nullable=True),
     sa.Column('private_key', sa.String(), nullable=True),
@@ -65,7 +69,7 @@ def upgrade() -> None:
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('wallet_id', sa.UUID(), nullable=True),
     sa.Column('user_id', sa.UUID(), nullable=True),
-    sa.Column('cryptocurrency', sa.Enum('bitcoin', 'ethereum', 'usdt', name='cryptocurrencytype'), nullable=True),
+    sa.Column('cryptocurrency', sa.Enum('bitcoin', 'ethereum', 'usdt', 'usdt_trc20', 'trx', name='cryptocurrencytype'), nullable=True),
     sa.Column('balance', sa.BigInteger(), nullable=True),
     sa.Column('actual_wallet_balance', sa.BigInteger(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
@@ -75,8 +79,8 @@ def upgrade() -> None:
     op.create_index(op.f('ix_tokenwallets_id'), 'tokenwallets', ['id'], unique=False)
     op.create_table('cryptocurrencytransactions',
     sa.Column('id', sa.UUID(), nullable=False),
-    sa.Column('network', sa.Enum('bitcoin_network', 'erc20', name='networktype'), nullable=True),
-    sa.Column('cryptocurrency', sa.Enum('bitcoin', 'ethereum', 'usdt', name='cryptocurrencytype'), nullable=True),
+    sa.Column('network', sa.Enum('bitcoin_network', 'erc20', 'trc20', name='networktype'), nullable=True),
+    sa.Column('cryptocurrency', sa.Enum('bitcoin', 'ethereum', 'usdt', 'usdt_trc20', 'trx', name='cryptocurrencytype'), nullable=True),
     sa.Column('count', sa.BigInteger(), nullable=True),
     sa.Column('receive_address', sa.String(), nullable=True),
     sa.Column('status', sa.Enum('not_send', 'pending', 'success', 'fail', name='statuscryptotransaction'), nullable=True),

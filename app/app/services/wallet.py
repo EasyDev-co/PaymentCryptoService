@@ -89,26 +89,35 @@ class WalletService:
 
     async def create_all_wallets(self, user_id: str):
         await self._get_or_create_wallet_coin(
-                NetworkType.bitcoin_network,
-                user_id,
-                CryptocurrencyType.bitcoin
-            )
+            NetworkType.bitcoin_network,
+            user_id,
+            CryptocurrencyType.bitcoin
+        )
         await self._get_or_create_wallet_coin(
-                NetworkType.erc20,
-                user_id,
-                CryptocurrencyType.ethereum,
-                self._add_address_to_webhook_erc20_task.delay
-            )
+            NetworkType.erc20,
+            user_id,
+            CryptocurrencyType.ethereum,
+            self._add_address_to_webhook_erc20_task.delay
+        )
         await self._get_or_create_wallet_coin(
-                NetworkType.erc20,
-                user_id,
-                CryptocurrencyType.usdt,
-                self._add_address_to_webhook_erc20_task.delay
-            )
+            NetworkType.erc20,
+            user_id,
+            CryptocurrencyType.usdt,
+            self._add_address_to_webhook_erc20_task.delay
+        )
+        await self._get_or_create_wallet_coin(
+            NetworkType.trc20,
+            user_id,
+            CryptocurrencyType.trx
+        )
+        await self._get_or_create_wallet_coin(
+            NetworkType.trc20,
+            user_id,
+            CryptocurrencyType.usdt_trc20
+        )
 
     async def get_wallets(self, user_id: str):
         user = self._repository_user.get(user_id=user_id)
-        logger.info(f"{user.id}")
         return self._repository_cryptocurrency_wallet.list(user_id=user.id)
 
     async def get_wallet(self, user_id: str, wallet_id: str):

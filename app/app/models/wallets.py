@@ -12,21 +12,28 @@ from sqlalchemy.orm import relationship
 class NetworkType(enum.Enum):
     bitcoin_network = "bitcoin_network"
     erc20 = "erc20"
+    trc20 = "trc20"
 
 
 class CryptocurrencyType(str, enum.Enum):
     bitcoin = "bitcoin"
     ethereum = "ethereum"
     usdt = "usdt"
+    usdt_trc20 = "usdt_trc20"
+    trx = "trx"
 
 
-def get_normal_name(type):
+def get_normal_name(type) -> str:
     if type == CryptocurrencyType.bitcoin:
         return "BTC"
     elif type == CryptocurrencyType.ethereum:
         return "ETH"
     elif type == CryptocurrencyType.usdt:
-        return "USDT"
+        return "USDT(ERC-20)"
+    elif type == CryptocurrencyType.usdt_trc20:
+        return "USDT(TRC-20)"
+    elif type == CryptocurrencyType.trx:
+        return "TRX"
 
 
 class Wallet(Base):

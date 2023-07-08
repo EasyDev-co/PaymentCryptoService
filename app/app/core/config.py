@@ -5,7 +5,6 @@ from pydantic import (
     validator,
     RedisDsn
 )
-from loguru import logger
 
 
 class Settings(BaseSettings):
@@ -42,6 +41,10 @@ class Settings(BaseSettings):
     ERC20_ADDRESS: str
     ERC20_PUBLIC_KEY: str
     ERC20_PRIVATE_KEY: str
+
+    TRC20_ADDRESS: str
+    TRC20_PUBLIC_KEY: str
+    TRC20_PRIVATE_KEY: str
 
     # access data
     ALCHEMY_API_URL: str
@@ -105,6 +108,10 @@ class Settings(BaseSettings):
 
     BITCOIN_ADDRESS: str
     BITCOIN_PRIVATE_KEY: str
+
+    USDT_TRC20_CONTRACT_ADDRESS: str
+
+    TRONSCAN_URL: str
 
     class Config:
         case_sensitive = True

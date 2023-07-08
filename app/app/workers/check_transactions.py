@@ -9,22 +9,25 @@ from app.repository.transactions import RepositoryCryptoTransaction
 from app.repository.settings import RepositorySettings
 from app.repository.user import RepositoryUser
 
-from app.models.wallets import get_normal_name
+from app.models.wallets import get_normal_name, NetworkType
 from app.models.transactions import CryptoTransaction
 from app.models.settings import TaskType
 
 from app.exceptions.erc20_exceptions import TransactionUnderPriced, TransactionInPool
 
+from loguru import logger
+
 
 class SendTransaction(Base):
 
-    def __init__(self,
-                 repository_crypto_transaction: RepositoryCryptoTransaction,
-                 crypto_service: CryptoService,
-                 repository_crypto_wallet: RepositoryCryptoWallet,
-                 settings_repository: RepositorySettings,
-                 *args, **kwargs
-                 ):
+    def __init__(
+            self,
+            repository_crypto_transaction: RepositoryCryptoTransaction,
+            crypto_service: CryptoService,
+            repository_crypto_wallet: RepositoryCryptoWallet,
+            settings_repository: RepositorySettings,
+            *args, **kwargs
+    ) -> None:
         self._repository_crypto_transaction = repository_crypto_transaction
         self._crypto_service = crypto_service
         self._settings_repository = settings_repository
@@ -45,6 +48,7 @@ class SendTransaction(Base):
 
         transactions = self._repository_crypto_transaction.list(
             status=CryptoTransaction.StatusCryptoTransaction.not_send)
+        logger.info(f"TRANSACTIONS SEND: {transactions}")
         for transaction in transactions:
             try:
                 service = self._crypto_service(transaction.network, transaction.cryptocurrency)
@@ -52,7 +56,7 @@ class SendTransaction(Base):
                     if self._repository_crypto_transaction.get(
                             id=transaction.start_on_transaction_id).status != CryptoTransaction.StatusCryptoTransaction.success:
                         continue
-
+                logger.info("SENDING TRANSACTION")
                 transaction_id = await service.send_transaction(
                     public_key=transaction.public_key,
                     private_key=transaction.private_key,
@@ -76,20 +80,23 @@ class SendTransaction(Base):
             except (TransactionUnderPriced, TransactionInPool):
                 pass
             except Exception as e:
-                self._repository_crypto_transaction.update(
-                    db_obj=transaction,
-                    obj_in={
-                        "status": CryptoTransaction.StatusCryptoTransaction.fail,
-                        "text": str(e)
-                    }
-                )
+                if "401 Client Error: Unauthorized for url:" not in str(e):
+                    logger.info(f"error: {e}")
+                    self._repository_crypto_transaction.update(
+                        db_obj=transaction,
+                        obj_in={
+                            "status": CryptoTransaction.StatusCryptoTransaction.fail,
+                            "text": str(e)
+                        }
+                    )
                 if transaction.type in [CryptoTransaction.TransactionType.in_wallet,
                                         CryptoTransaction.TransactionType.out_system]:
                     if transaction.type == CryptoTransaction.TransactionType.out_system:
                         self._repository_crypto_wallet.update(
                             db_obj=transaction.wallet_crypto,
                             obj_in={
-                                "balance": transaction.wallet_crypto.balance + transaction.count + transaction.comission if transaction.comission else 0
+                                "balance": transaction.wallet_crypto.balance + transaction.count + transaction.comission
+                                if transaction.comission else 0
                             }
                         )
 
@@ -136,11 +143,13 @@ class CheckTransaction(Base):
         self.session.commit()
 
         transactions = self._repository_crypto_transaction.list(
-            status=CryptoTransaction.StatusCryptoTransaction.pending)
+            status=CryptoTransaction.StatusCryptoTransaction.pending
+        )
         for transaction in transactions:
+            logger.info(f"TRANSACTION: {transaction.network} {transaction.type}")
             service = self._crypto_service(transaction.network, transaction.cryptocurrency)
             result = await service.check_transaction(transaction.transaction_id)
-
+            logger.info(f"RESULT TRANSACTION: {result}")
             if result == StatusTransaction.success:
                 self._repository_crypto_transaction.update(
                     db_obj=transaction,
