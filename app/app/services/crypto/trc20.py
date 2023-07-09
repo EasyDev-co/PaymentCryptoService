@@ -48,20 +48,21 @@ class TRXService(CryptocurrencyInterface):
         logger.info(f"SENDER: {sender_address}")
         logger.info(f"RECIPIENT: {destination_address}")
         logger.info(f"AMOUNT: {count}")
-        # try:
-        private_key = PrivateKey(bytes.fromhex(private_key))
-        transaction = self.client.trx.transfer(
-                from_=sender_address,
-                to=destination_address,
-                amount=count
-            )
-        signed_txn = transaction.build().sign(private_key)
-        result = signed_txn.broadcast()
+        try:
+            private_key = PrivateKey(bytes.fromhex(private_key))
+            transaction = self.client.trx.transfer(
+                    from_=sender_address,
+                    to=destination_address,
+                    amount=count
+                )
+            signed_txn = transaction.build().sign(private_key)
+            result = signed_txn.broadcast()
 
-        logger.info(f"TXID: {result.txid}")
-        return result.txid
-        # except Exception as _exc:
-        #     logger.error(f"Error: {_exc}")
+            logger.info(f"TXID: {result.txid}")
+            return result.txid
+        except Exception as _exc:
+            logger.error(f"Error: {_exc}")
+            raise Exception
 
     @staticmethod
     def from_minimal_part(amount: int, **kwargs) -> float:
@@ -114,7 +115,12 @@ class USDTTrc20Service(TRXService):
             tronscan_url: str
     ) -> None:
         super().__init__(tronscan_url)
-        self._usdt_trc20_contract_address = usdt_trc20_contract_address
+        try:
+            self.usdt_contract_address = self.client.get_contract(
+                usdt_trc20_contract_address
+            )
+        except Exception as _exc:
+            logger.error(f"Error: {_exc}")
 
     async def send_transaction(
             self,
@@ -129,20 +135,18 @@ class USDTTrc20Service(TRXService):
         logger.info(f"SENDER: {sender_address}")
         logger.info(f"RECIPIENT: {destination_address}")
         logger.info(f"AMOUNT: {count}")
-        # try:
-        private_key = PrivateKey(bytes.fromhex(private_key))
-        usdt_contract_address = self.client.get_contract(
-                self.usdt_trc20_contract_address
-            )
-        txn = usdt_contract_address.functions.transfer(
-                    destination_address,
-                    count
-        ).with_owner(sender_address).fee_limit(10_000_000_000).build().sign(private_key)
-        result = txn.broadcast()
-        logger.info(f"RESULT USDT: {result.txid}")
-        return result.txid
-        # except Exception as _exc:
-        #     logger.error(f"Error: {_exc}")
+        try:
+            private_key = PrivateKey(bytes.fromhex(private_key))
+            txn = self.usdt_contract_address.functions.transfer(
+                        destination_address,
+                        count
+            ).with_owner(sender_address).fee_limit(10_000_000_000).build().sign(private_key)
+            result = txn.broadcast()
+            logger.info(f"RESULT USDT: {result.txid}")
+            return result.txid
+        except Exception as _exc:
+            logger.error(f"Error: {_exc}")
+            raise Exception
 
 
 class TRC20Network:

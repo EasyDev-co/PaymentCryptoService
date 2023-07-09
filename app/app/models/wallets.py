@@ -29,9 +29,9 @@ def get_normal_name(type) -> str:
     elif type == CryptocurrencyType.ethereum:
         return "ETH"
     elif type == CryptocurrencyType.usdt:
-        return "USDT(ERC-20)"
+        return "USDT"
     elif type == CryptocurrencyType.usdt_trc20:
-        return "USDT(TRC-20)"
+        return "USDT"
     elif type == CryptocurrencyType.trx:
         return "TRX"
 

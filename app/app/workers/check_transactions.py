@@ -146,7 +146,6 @@ class CheckTransaction(Base):
             status=CryptoTransaction.StatusCryptoTransaction.pending
         )
         for transaction in transactions:
-            logger.info(f"TRANSACTION: {transaction.network} {transaction.type}")
             service = self._crypto_service(transaction.network, transaction.cryptocurrency)
             result = await service.check_transaction(transaction.transaction_id)
             logger.info(f"RESULT TRANSACTION: {result}")
@@ -159,15 +158,16 @@ class CheckTransaction(Base):
                 )
 
                 if transaction.type == transaction.TransactionType.in_system:
+                    new_count_balance = await self._rate_service.get(
+                        get_normal_name(transaction.cryptocurrency),
+                        count=service.from_minimal_part(transaction.count)
+                    )
                     self._rep_cryptocurrency_wallet.update(
                         db_obj=transaction.wallet_crypto,
                         obj_in={
                             "balance": transaction.wallet_crypto.balance + transaction.count,
+                            "actual_wallet_balance": new_count_balance
                         }
-                    )
-                    new_count_balance = await self._rate_service.get(
-                        get_normal_name(transaction.cryptocurrency),
-                        count=service.from_minimal_part(transaction.count)
                     )
 
             elif result == StatusTransaction.failed:
@@ -194,3 +194,5 @@ class CheckTransaction(Base):
                 "transaction_check_active": TaskType.not_working
             }
         )
+
+        self.session.commit()
