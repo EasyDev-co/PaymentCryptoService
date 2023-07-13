@@ -19,8 +19,8 @@ router = APIRouter()
 @inject
 @commit_and_close_session
 async def list_wallets(
-        user_id: str,
-        # user_id=Depends(get_current_user)
+        # user_id: str,
+        user_id=Depends(get_current_user),
         wallet_service: WalletService = Depends(Provide[Container.wallet_service])
 ):
     return await wallet_service.get_wallets(user_id=user_id)
@@ -30,9 +30,9 @@ async def list_wallets(
 @inject
 @commit_and_close_session
 async def get_wallet(
-        user_id: str,
+        # user_id: str,
         wallet_id: str,
-        # user_id=Depends(get_current_user)
+        user_id=Depends(get_current_user),
         wallet_service: WalletService = Depends(Provide[Container.wallet_service])
 ):
     return await wallet_service.get_wallet(

@@ -22,10 +22,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     algorithm = 'HS256'
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[algorithm])
-        user_id = payload.get("user_id")
-        if user_id is None:
+        user_uuid = payload.get("user_uuid")
+        if user_uuid is None:
             raise credentials_exception
-        return user_id
+        return user_uuid
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

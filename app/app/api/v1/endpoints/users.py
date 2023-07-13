@@ -17,8 +17,8 @@ router = APIRouter()
 @inject
 @commit_and_close_session
 async def create_user(
-        user_id: int,
-        # user_id=Depends(get_current_user),
+        # user_id: int,
+        user_id=Depends(get_current_user),
         repository_user: RepositoryUser = Depends(Provide[Container.repository_user]),
         wallet_service: WalletService = Depends(Provide[Container.wallet_service])
 ):
