@@ -84,7 +84,7 @@ class CheckTRC20Wallets(Base):
                                 "network": wallet_cryptocurrency.wallet.network,
                                 "cryptocurrency": CryptocurrencyType.trx,
                                 "count": self._usdt_trc20_service.to_minimal_part(
-                                    amount=settings_db.usdt_trc_comission_out_count
+                                    amount=settings_db.usdt_trc_fee_limit
                                 ),
                                 "receive_address": wallet.address,
                                 "type": CryptoTransaction.TransactionType.comission,

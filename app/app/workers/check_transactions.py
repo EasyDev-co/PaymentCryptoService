@@ -1,3 +1,5 @@
+import httpx
+
 from .base import Base
 
 from app.services.crypto.base import StatusTransaction
@@ -158,6 +160,7 @@ class CheckTransaction(Base):
                 )
 
                 if transaction.type == transaction.TransactionType.in_system:
+                    # POST ЗАПРОС НА ВЕБ ХУК
                     new_count_balance = await self._rate_service.get(
                         get_normal_name(transaction.cryptocurrency),
                         count=service.from_minimal_part(transaction.count)
